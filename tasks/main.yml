@@ -1,0 +1,20 @@
+---
+- name: "creates docker compose directory for {{ name }}"
+  ansible.builtin.file:
+    path: "/etc/docker/compose/{{ name }}"
+    state: directory
+    mode: 0755
+
+- name: write compose file
+  notify:
+    - restart service
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "/etc/docker/compose/{{ name }}/docker-compose.yml"
+    mode: 0644
+
+- name: "start {{ name }}"
+  ansible.builtin.systemd_service:
+    name: "docker-compose@{{ name }}"
+    enabled: true
+    state: started
